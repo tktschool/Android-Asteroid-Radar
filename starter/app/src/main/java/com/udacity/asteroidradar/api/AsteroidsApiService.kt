@@ -4,6 +4,7 @@ import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.udacity.asteroidradar.ImageOfDay
 import com.udacity.asteroidradar.MainApplication
 import okhttp3.OkHttpClient
 import org.json.JSONObject
@@ -14,38 +15,34 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 
-private const val BASE_URL = "https://api.nasa.gov/neo/rest/v1/"
+private const val BASE_URL = "https://api.nasa.gov/"
 
 private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
+    .addLast(KotlinJsonAdapterFactory())
     .build()
 
-val client = OkHttpClient.Builder()
-    .addInterceptor(
-        ChuckerInterceptor.Builder(MainApplication.instance.applicationContext)
-            .collector(ChuckerCollector(MainApplication.instance.applicationContext))
-            .maxContentLength(250000L)
-            .redactHeaders(emptySet())
-            .alwaysReadResponseBody(false)
-            .build()
-    )
-    .build()
-
-private val retrofit = Retrofit.Builder()
+private val retrofit_scalrar = Retrofit.Builder()
     .addConverterFactory(ScalarsConverterFactory.create())
-    .client(client)
+    .baseUrl(BASE_URL)
+    .build()
+
+private val retrofit_moshi = Retrofit.Builder()
+    .addConverterFactory(MoshiConverterFactory.create(moshi))
     .baseUrl(BASE_URL)
     .build()
 
 
-
 interface AsteroidsApiService {
 
-    @GET("feed")
+    @GET("neo/rest/v1/feed")
     suspend fun getFeeds(@Query("start_date") startDate: String, @Query("api_key") apiKey: String): String
+
+    @GET("planetary/apod")
+    suspend fun getImageOfDay(@Query("api_key") apiKey: String): ImageOfDay
 
 }
 
 object  AsteroidsApi {
-    val retrofitService : AsteroidsApiService by lazy { retrofit.create(AsteroidsApiService::class.java) }
+    val retrofitScalarService : AsteroidsApiService by lazy { retrofit_scalrar.create(AsteroidsApiService::class.java) }
+    val retrofitMoshiService : AsteroidsApiService by lazy { retrofit_moshi.create(AsteroidsApiService::class.java) }
 }

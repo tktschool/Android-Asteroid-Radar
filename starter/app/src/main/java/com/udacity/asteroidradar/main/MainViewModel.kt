@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.ImageOfDay
 import com.udacity.asteroidradar.api.AsteroidsApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import kotlinx.coroutines.launch
@@ -23,6 +24,10 @@ class MainViewModel : ViewModel() {
     val asteroid: LiveData<List<Asteroid>>
         get() = _asteroid
 
+    private val _imageOfDay = MutableLiveData<ImageOfDay>()
+    val imageOfday: LiveData<ImageOfDay>
+        get() = _imageOfDay
+
     init {
         getAsteroids()
     }
@@ -31,17 +36,29 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             _status.value = ApiStatus.LOADING
             try {
-                val result = AsteroidsApi.retrofitService.getFeeds("2021-01-09","INSERT_API_KEY_HERE")
-                val json =  parseAsteroidsJsonResult(JSONObject(result))
+                val result =
+                    AsteroidsApi.retrofitScalarService.getFeeds("2021-01-09", "INSERT_API_KEY_HERE")
+                val json = parseAsteroidsJsonResult(JSONObject(result))
                 _asteroid.value = json
                 _status.value = ApiStatus.DONE
             } catch (e: Exception) {
-                _status.value = ApiStatus.ERROR
                 _asteroid.value = arrayListOf()
-                e.message?.let { Log.i("TAG", it) }
+                _status.value = ApiStatus.ERROR
+                e.message?.let { Log.i("MainViewModel", e.message!!) }
             }
         }
 
+    }
+
+    private fun getImageOfDay() {
+        viewModelScope.launch {
+            try {
+                val result =
+                    AsteroidsApi.retrofitMoshiService.getImageOfDay("INSERT_API_KEY_HERE")
+            } catch (e: Exception) {
+                e.message?.let { Log.i("MainViewModel", e.message!!) }
+            }
         }
+    }
 
 }
