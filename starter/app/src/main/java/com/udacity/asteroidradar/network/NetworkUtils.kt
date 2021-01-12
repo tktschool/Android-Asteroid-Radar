@@ -1,5 +1,7 @@
 package com.udacity.asteroidradar.network
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.Constants
 import org.json.JSONObject
@@ -58,7 +60,7 @@ private fun getNextSevenDaysFormattedDates(): ArrayList<String> {
 }
 
 
-private fun getToDaysFormattedDates(): String {
+fun getToDaysFormattedDates(): String {
     var formattedDate: String
 
     val calendar = Calendar.getInstance()
