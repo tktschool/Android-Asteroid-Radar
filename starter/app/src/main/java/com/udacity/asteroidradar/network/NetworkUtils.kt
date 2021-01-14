@@ -1,7 +1,5 @@
 package com.udacity.asteroidradar.network
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.Constants
 import org.json.JSONObject
@@ -67,6 +65,20 @@ fun getToDaysFormattedDates(): String {
     val currentTime = calendar.time
     SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault()).apply {
         formattedDate = format(currentTime)
+    }
+    return formattedDate
+}
+
+//TODO let me know better way to get end of week day
+fun getEndWeekFormattedDates(): String {
+    var formattedDate: String
+
+    val calendar = Calendar.getInstance()
+    while (calendar.get(Calendar.DAY_OF_WEEK) < 7) {
+        calendar.add(Calendar.DAY_OF_WEEK, 1)
+    }
+    SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault()).apply {
+        formattedDate = format(calendar.time)
     }
     return formattedDate
 }

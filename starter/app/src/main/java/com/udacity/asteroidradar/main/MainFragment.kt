@@ -1,11 +1,8 @@
 package com.udacity.asteroidradar.main
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.R
@@ -23,7 +20,7 @@ class MainFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = this
 
@@ -34,7 +31,7 @@ class MainFragment : Fragment() {
         val adapter = AsteroidAdapter(AsteroidListener { asteroid ->
             viewModel.onAsteroidClicked(asteroid)
         })
-        viewModel.navigationToDetail.observe(viewLifecycleOwner, Observer {
+        viewModel.navigationToDetail.observe(viewLifecycleOwner, {
             if(it != null){
                 findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
                 viewModel.onAsteroidNavigated()
@@ -43,7 +40,7 @@ class MainFragment : Fragment() {
 
 
         binding.asteroidRecycler.adapter = adapter
-        viewModel.asteroid.observe(viewLifecycleOwner, Observer {
+        viewModel.asteroidList.observe(viewLifecycleOwner, {
             it?.let {
                 adapter.submitList(it)
             }
@@ -58,6 +55,17 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.show_today_menu -> {
+                viewModel.updateFiler(Filter.TODAY)
+            }
+            R.id.show_save_menu ->{
+                viewModel.updateFiler(Filter.SAVED)
+            }
+            R.id.show_week_menu->{
+                viewModel.updateFiler(Filter.WEEK)
+            }
+        }
         return true
     }
 }

@@ -1,8 +1,9 @@
 package com.udacity.asteroidradar
 
 object Constants {
-    const val API_QUERY_DATE_FORMAT = "YYYY-MM-dd"
+    const val API_QUERY_DATE_FORMAT = "yyyy-MM-dd"
     const val DEFAULT_END_DATE_DAYS = 7
     const val BASE_URL = "https://api.nasa.gov/"
     const val API_KEY = "API_KEY"
+    //TODO let me know better way to protect api key from revert engineering code
 }

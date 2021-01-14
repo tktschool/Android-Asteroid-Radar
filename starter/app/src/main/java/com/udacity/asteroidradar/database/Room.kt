@@ -8,8 +8,15 @@ import androidx.room.*
 @Dao
 interface AsteroidDao {
 
-    @Query("select * from DatabaseAsteroid")
-    fun getAsteroids(): LiveData<List<DatabaseAsteroid>>
+    //TODO Can i use sql between
+    @Query("SELECT * FROM DatabaseAsteroid WHERE closeApproachDate >= :day AND  closeApproachDate <= :dayEndWeek ORDER BY closeApproachDate asc")
+    fun getAsteroidsWeek(day:String,dayEndWeek:String): LiveData<List<DatabaseAsteroid>>
+
+    @Query("select * from DatabaseAsteroid where closeApproachDate >=:day order by closeApproachDate asc")
+    fun getAsteroidSave(day:String): LiveData<List<DatabaseAsteroid>>
+
+    @Query("select * from DatabaseAsteroid where closeApproachDate = :day")
+    fun getAsteroidsToday(day:String): LiveData<List<DatabaseAsteroid>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg asteroids: DatabaseAsteroid)

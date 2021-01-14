@@ -15,19 +15,9 @@ import org.json.JSONObject
 
 enum class ApiStatus { LOADING, ERROR, DONE }
 
-class MainViewModel(application: Application) : AndroidViewModel(application)  {
+enum class Filter { TODAY, WEEK, SAVED }
 
-    private val _status = MutableLiveData<ApiStatus>()
-    val status: LiveData<ApiStatus>
-        get() = _status
-
-//    private val _asteroid = MutableLiveData<List<Asteroid>>()
-//    val asteroid: LiveData<List<Asteroid>>
-//        get() = _asteroid
-
-    private val _pictureOfDay = MutableLiveData<PictureOfDay>()
-    val pictureOfDay: LiveData<PictureOfDay>
-        get() = _pictureOfDay
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _navigationToDetail = MutableLiveData<Asteroid>()
     val navigationToDetail: LiveData<Asteroid>
@@ -36,53 +26,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application)  {
     private val database = getDatabase(application)
     private val asteroidRepository = AsteroidRepository(database)
 
-    val asteroid = asteroidRepository.videos
+    val pictureOfDay = asteroidRepository.pictureOfDay
+    val pictureOfDayApiStatus = asteroidRepository.pictureOfDayApiStatus
 
-    init {
-
-        viewModelScope.launch {
-            asteroidRepository.refreshAsteroids()
+        private val asteroidType = MutableLiveData(Filter.TODAY)
+    val asteroidList = Transformations.switchMap(asteroidType) { type ->
+        when (type) {
+            Filter.WEEK -> {
+                asteroidRepository.asteroidsWeek
+            }
+            Filter.TODAY -> {
+                asteroidRepository.asteroidsToday
+            }
+            Filter.SAVED -> {
+                asteroidRepository.asteroidsSave
+            }
+            else -> MutableLiveData<List<Asteroid>>(emptyList())
         }
-        getImageOfDay()
     }
 
-//    private fun getAsteroids() {
-//        viewModelScope.launch {
-//            _status.value = ApiStatus.LOADING
-//            try {
-//                val result =
-//                    AsteroidsApi.retrofitService.getFeeds("2021-01-11", API_KEY)
-//                val json = parseAsteroidsJsonResult(JSONObject(result))
-//                _asteroid.value = json
-//                _status.value = ApiStatus.DONE
-//            } catch (e: Exception) {
-//                _asteroid.value = arrayListOf()
-//                _status.value = ApiStatus.ERROR
-//                e.message?.let { Log.e("MainViewModel", e.message!!) }
-//            }
-//        }
-//    }
-
-    private fun getImageOfDay() {
+    init {
         viewModelScope.launch {
-            try {
-                val result =
-                    AsteroidsApi.retrofitService.getImageOfDay(API_KEY)
-                _pictureOfDay.value = result
-                _status.value = ApiStatus.DONE
-            } catch (e: Exception) {
-                _pictureOfDay.value = null
-                _status.value = ApiStatus.ERROR
-                e.message?.let { Log.e("MainViewModel", e.message!!) }
-            }
+            asteroidRepository.refreshAsteroids()
+            asteroidRepository.getImageOfDay()
         }
+
+    }
+
+    fun updateFiler(filer: Filter) {
+        asteroidType.value = filer
     }
 
     fun onAsteroidClicked(asteroid: Asteroid) {
         _navigationToDetail.value = asteroid
     }
 
-    fun onAsteroidNavigated(){
+    fun onAsteroidNavigated() {
         _navigationToDetail.value = null
     }
 

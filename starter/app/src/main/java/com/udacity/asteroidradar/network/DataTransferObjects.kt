@@ -21,7 +21,8 @@ data class NetworkAsteroid(
     val isPotentiallyHazardous: Boolean
 )
 
-/**
+    //TODO look like boilercode , have better way to map similar object
+ /**
  * Convert Network results to database objects
  */
 fun NetworkAsteroidContainer.asDomainModel(): List<Asteroid> {

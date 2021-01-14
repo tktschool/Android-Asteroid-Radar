@@ -1,17 +1,21 @@
 package com.udacity.asteroidradar
 
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import com.squareup.picasso.Picasso
+import com.udacity.asteroidradar.main.ApiStatus
 
 @BindingAdapter("statusIcon")
 fun bindAsteroidStatusImage(imageView: ImageView, isHazardous: Boolean) {
     if (isHazardous) {
         imageView.setImageResource(R.drawable.ic_status_potentially_hazardous)
+        imageView.contentDescription = MainApplication.instance.applicationContext.getString(R.string.potentially_hazardous_asteroid_image)
     } else {
         imageView.setImageResource(R.drawable.ic_status_normal)
+        imageView.contentDescription =   MainApplication.instance.applicationContext.getString(R.string.not_hazardous_asteroid_image)
     }
 }
 
@@ -19,8 +23,10 @@ fun bindAsteroidStatusImage(imageView: ImageView, isHazardous: Boolean) {
 fun bindDetailsStatusImage(imageView: ImageView, isHazardous: Boolean) {
     if (isHazardous) {
         imageView.setImageResource(R.drawable.asteroid_hazardous)
+        imageView.contentDescription = MainApplication.instance.applicationContext.getString(R.string.potentially_hazardous_asteroid_image)
     } else {
         imageView.setImageResource(R.drawable.asteroid_safe)
+        imageView.contentDescription =   MainApplication.instance.applicationContext.getString(R.string.not_hazardous_asteroid_image)
     }
 }
 
@@ -51,5 +57,22 @@ fun bindImage(imgView: ImageView, imgUrl: String?) {
             .placeholder(R.drawable.loading_animation)
             .error(R.drawable.ic_broken_image)
             .into(imgView)
+    }
+}
+
+@BindingAdapter("pictureOfDayApiStatus")
+fun bindStatus(statusImageView: ImageView, status: ApiStatus?) {
+    when (status) {
+        ApiStatus.LOADING -> {
+            statusImageView.visibility = View.VISIBLE
+            statusImageView.setImageResource(R.drawable.loading_animation)
+        }
+        ApiStatus.ERROR -> {
+            statusImageView.visibility = View.VISIBLE
+            statusImageView.setImageResource(R.drawable.ic_conection_error)
+        }
+        ApiStatus.DONE -> {
+            statusImageView.visibility = View.GONE
+        }
     }
 }
