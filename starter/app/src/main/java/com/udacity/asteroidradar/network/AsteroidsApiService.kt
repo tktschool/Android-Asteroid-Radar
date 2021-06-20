@@ -14,7 +14,6 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-
 private val moshi = Moshi.Builder()
     .addLast(KotlinJsonAdapterFactory())
     .build()
